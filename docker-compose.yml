@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+        
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+  
+  json_api:
+    build:
+      context: ./backend/json_api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+
