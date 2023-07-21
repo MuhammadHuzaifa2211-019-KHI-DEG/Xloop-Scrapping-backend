@@ -39,16 +39,17 @@ def scrape_jobs():
             writer = csv.writer(file)   
             # Extract data from each job listing
             for job in job_listings:
-                job_title = title(job)
-                job_location = location(job)
-                company = company_name(job)
-                website_url = company_url(job)  
-                # skills = skill(job)
-                skills=job_description(job)
-                categories = category(job)
+                if 'https://dailyremote.com/apply/' in company_url(job): 
+                    job_title = title(job)
+                    job_location = location(job)
+                    company = company_name(job)
+                    website_url = company_url(job)  
+                    # skills = skill(job)
+                    skills=job_description(job)
+                    categories = category(job)
 
-                # Write the data to the CSV file
-                writer.writerow([job_title, job_location, company, website_url, skills, categories])
+                    # Write the data to the CSV file
+                    writer.writerow([job_title, job_location, company, website_url, skills, categories])
     print("Exit to scrap jobs")
 
 # Title
@@ -132,3 +133,5 @@ def soup(url):
     # Parse the HTML content using BeautifulSoup
    soup = BeautifulSoup(response.content, "html.parser")
    return soup
+
+# scrape_jobs()
