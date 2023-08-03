@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 from bs4 import BeautifulSoup
 import csv
 import requests
-import logging
 def scrape_jobs():
     print("Enter to scrape_jobs")
     # Send a GET request to the website
@@ -30,6 +29,7 @@ def scrape_jobs():
         sp = soup(url)
         job_listings = sp.find_all("article")
         csv_file = 'job_data.csv'
+        
         if flag == False:
             with open(csv_file, 'w', newline='') as file:
                 writer = csv.writer(file)
@@ -41,19 +41,25 @@ def scrape_jobs():
             # Extract data from each job listing
             for job in job_listings:
                 try:
-                    if 'https://dailyremote.com/apply/' in company_url(job): 
+                    exee=extract_duration(job)
+                    print('>>>>>>>>>',exee)
+                    exee_list = ['today', '2d', '1d', 'yesterday']
+                    print('===',company_url(job))
+                    if exee in exee_list and company_url(job) is not False:
+                        print('===========================')
+
                         job_title = title(job)
                         job_location = location(job)
                         company = company_name(job)
                         website_url = company_url(job)  
-                        # skills = skill(job)
                         skills=job_description(job)
                         categories = category(job)
-
+                        # ext=extract_duration(job)
                         # Write the data to the CSV file
                         writer.writerow([job_title, job_location, company, website_url, skills, categories])
+                        # writer.writerow([ext])
                 except Exception as e:
-                    print(e)
+                    print('error in scrap_jobs function',e)
                     pass                 
     print("Exit to scrap jobs")
 
@@ -63,6 +69,7 @@ def title(x):
         title=x.find('a').text
         return title.replace('\n', '')
     except Exception as e:
+        print('error in title function',e)
         pass
 
 #Company Name
@@ -70,6 +77,7 @@ def company_name(x):
     try:
         return x.find('span').text
     except Exception as e:
+        print('error in company_name function',e)
         pass
 
 #location
@@ -77,12 +85,12 @@ def location(x):
     try:
         return x.find('span',attrs={'class':'meta-holder'}).text.strip()
     except Exception as e:
+        print('error in location function',e)
         pass
 
 #Company_Url
 def company_url(x):
     try:
-        import requests
         given_url="https://dailyremote.com"
         HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -93,15 +101,25 @@ def company_url(x):
         soup2 = BeautifulSoup(url_1.content, "html.parser")
         company_link=soup2.find('a',attrs={'class':'primary-btn outline js-apply-button'})
         company_url=company_link.get('href')
-        return given_url+company_url
+        if 'apply' in company_url:
+            return given_url+company_url
+        elif 'jobg8' in company_url:
+            return False
+        else:
+            return company_url
+        
     except Exception as e:
+        print('error in company_url function',e)
         pass
 
 #category
 def category(x):
     try:
-        return x.find('span',attrs={'class':'job-category'}).text.strip()
+        cat=x.find('span',attrs={'class':'job-category'}).text.strip()
+        print('cat',cat)
+        return cat
     except Exception as e:
+        print('error in category function',e)
         pass
 
 #Skills
@@ -139,4 +157,10 @@ def soup(url):
    soup = BeautifulSoup(response.content, "html.parser")
    return soup
 
+def extract_duration(x):
+    try:
+        duration_tag = x.find('div', attrs={'class':'company-name'}).find_all('span')[-1].text.strip()
+        return duration_tag
+    except Exception as e:
+        print('error in extract_duration function',e)
 # scrape_jobs()

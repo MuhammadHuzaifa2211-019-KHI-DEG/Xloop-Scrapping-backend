@@ -22,7 +22,7 @@ blob_service_client = BlobServiceClient(
 )
 
 file='job_data.csv'
-index = 0
+index = 5
 
 def generate_and_upload_csv():
     # logging.info("Enter to generate_and_upload_csv")
